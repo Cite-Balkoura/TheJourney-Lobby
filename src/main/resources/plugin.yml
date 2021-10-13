@@ -1,0 +1,14 @@
+name: TheJourney
+main: fr.grimtown.journey.LobbyPlugin
+version: 1.0
+api-version: 1.17
+description: 'Lobby plugin for The Journey event, event from Cap sur Grimtown !'
+authors:
+  - MileKat (tutur1004#8766)
+  - BakaAless (Aless#6161)
+commands:
+  journey:
+    aliases:
+      - thejourney
+      - grimtownjourney
+      - grimtownthejourney
