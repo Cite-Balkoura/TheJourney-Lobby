@@ -2,11 +2,14 @@ package fr.grimtown.journey.event;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import fr.grimtown.journey.LobbyPlugin;
+import fr.grimtown.journey.data.classes.DataPlayer;
+import fr.grimtown.journey.data.managers.DataPlayerManager;
+import fr.milekat.utils.DateMileKat;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,6 +21,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Date;
 
 public record Listeners(JavaPlugin plugin) implements Listener {
     /**
@@ -36,7 +41,18 @@ public record Listeners(JavaPlugin plugin) implements Listener {
         if (!(event.getClickedBlock()!=null && event.getClickedBlock().getState() instanceof Sign)) return;
         if (((Sign) event.getClickedBlock().getState()).line(0).
                 equals(Component.text(plugin.getConfig().getString("lobby.sign")))) {
-            sendPlayerToServer(event.getPlayer(), "MONGO_GET_SERVER_HERE");
+            DataPlayer data = DataPlayerManager.getDataPlayer(event.getPlayer().getUniqueId());
+            if (LobbyPlugin.getEvent().isRunning()) {
+                if (data == null) sendPlayerToServer(event.getPlayer(), "Journey_Universe_1");
+                else sendPlayerToServer(event.getPlayer(), "Journey_Universe_" + data.getUniverse().level);
+            } else {
+                if (LobbyPlugin.getEvent().getEndDate().after(new Date())) {
+                    event.getPlayer().sendMessage(plugin.getConfig().getString("lobby.event-start-in")
+                            .replaceAll("<REAMING>", DateMileKat.reamingToString(LobbyPlugin.getEvent().getStartDate())));
+                } else {
+                    event.getPlayer().sendMessage(plugin.getConfig().getString("lobby.event-finished"));
+                }
+            }
         }
     }
 

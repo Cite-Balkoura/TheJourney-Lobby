@@ -1,4 +1,4 @@
-name: TheJourney
+name: TheJourneyLobby
 main: fr.grimtown.journey.LobbyPlugin
 version: 1.0
 api-version: 1.17

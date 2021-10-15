@@ -1,5 +1,15 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
+jar {
+    actions = [] as List<Action<? super Task>>
+    dependsOn('shadowJar')
+}
+
+shadowJar{
+    getArchiveClassifier().set(null)
 }
 
 repositories {
