@@ -6,6 +6,8 @@ lobby:
     z: 0
   sign: "[The Journey]"
   first-universe: "SKY_LAND"
+  welcome-message: "Welcome to The Journey event !"
+  how-to-back: "To resume your game, click on the sign."
   event-start-in: "This event start in: <REAMING>."
   event-finished: "This event is finish !"
 #

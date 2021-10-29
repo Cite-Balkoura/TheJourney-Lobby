@@ -7,6 +7,7 @@ import fr.grimtown.journey.data.classes.DataPlayer;
 import fr.grimtown.journey.data.managers.DataPlayerManager;
 import fr.milekat.utils.DateMileKat;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Sign;
@@ -14,9 +15,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -42,7 +43,7 @@ public record Listeners(JavaPlugin plugin) implements Listener {
         if (((Sign) event.getClickedBlock().getState()).line(0).
                 equals(Component.text(plugin.getConfig().getString("lobby.sign")))) {
             DataPlayer data = DataPlayerManager.getDataPlayer(event.getPlayer().getUniqueId());
-            if (LobbyPlugin.getEvent().isRunning()) {
+            if (LobbyPlugin.getEvent().isRunning() || event.getPlayer().hasPermission("mods.event.bypass-start")) {
                 if (data == null) sendPlayerToServer(event.getPlayer(), "Journey_Universe_1");
                 else sendPlayerToServer(event.getPlayer(), "Journey_Universe_" + data.getUniverse().level);
             } else {
@@ -64,6 +65,16 @@ public record Listeners(JavaPlugin plugin) implements Listener {
                 plugin.getConfig().getDouble("lobby.spawn.y"),
                 plugin.getConfig().getDouble("lobby.spawn.z"),
                 0,0));
+        Bukkit.getScheduler().runTaskAsynchronously(LobbyPlugin.getPlugin(), ()-> {
+            if (!DataPlayerManager.hasData(event.getPlayer().getUniqueId())) {
+                DataPlayerManager.save(new DataPlayer(event.getPlayer().getUniqueId(), event.getPlayer().getName()));
+                event.getPlayer().sendMessage(plugin.getConfig().getString("lobby.welcome-message"));
+            }
+            else {
+                DataPlayerManager.updateUsername(event.getPlayer().getUniqueId(), event.getPlayer().getName());
+                event.getPlayer().sendMessage(plugin.getConfig().getString("lobby.how-to-back"));
+            }
+        });
     }
 
     @EventHandler
@@ -72,22 +83,26 @@ public record Listeners(JavaPlugin plugin) implements Listener {
     }
 
     @EventHandler
-    public void onBreak(EntityDamageEvent event) {
+    public void onDamage(EntityDamageEvent event) {
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onBreak(BlockPlaceEvent event) {
-        if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) event.setCancelled(true);
-    }
-
-    @EventHandler
-    public void onBreak(BlockDamageEvent event) {
+    public void onPlace(BlockPlaceEvent event) {
         if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) event.setCancelled(true);
     }
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
         if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE)) event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        event.getEntity().teleport(new Location(event.getEntity().getWorld(),
+                plugin.getConfig().getDouble("lobby.spawn.x"),
+                plugin.getConfig().getDouble("lobby.spawn.y"),
+                plugin.getConfig().getDouble("lobby.spawn.z"),
+                0,0));
     }
 }

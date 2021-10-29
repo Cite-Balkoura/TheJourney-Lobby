@@ -8,6 +8,7 @@ import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import dev.morphia.mapping.MapperOptions;
 import fr.grimtown.journey.LobbyPlugin;
+import fr.grimtown.journey.data.classes.DataPlayer;
 import fr.grimtown.journey.data.classes.Event;
 import org.bson.UuidRepresentation;
 import org.bukkit.Bukkit;
@@ -46,7 +47,8 @@ public class MongoDB {
         Datastore datastore = Morphia.createDatastore(MongoClients.create(settings), dbName, MapperOptions.builder()
                 .enablePolymorphicQueries(true)
                 .build());
-        datastore.getMapper().map(Event.class);
+        if (dbName.equalsIgnoreCase("master")) datastore.getMapper().map(Event.class);
+        else datastore.getMapper().map(DataPlayer.class);
         datastore.ensureIndexes();
         datastore.ensureCaps();
         datastore.enableDocumentValidation();
