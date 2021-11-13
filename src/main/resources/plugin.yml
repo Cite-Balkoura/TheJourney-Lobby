@@ -3,9 +3,10 @@ main: fr.grimtown.journey.LobbyPlugin
 version: 1.0
 api-version: 1.17
 description: 'Lobby plugin for The Journey event, event from Cap sur Grimtown !'
-authors:
-  - MileKat (tutur1004#8766)
-  - BakaAless (Aless#6161)
+author: MileKat (tutur1004#8766)
+libraries:
+  - org.mongodb:mongodb-driver-sync:4.3.2
+  - dev.morphia.morphia:morphia-core:2.2.2
 commands:
   journey:
     aliases:
